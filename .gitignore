@@ -1,0 +1,4 @@
+package/pkg/
+package/src/
+package/*.tar.gz
+package/*.tar.gz.part

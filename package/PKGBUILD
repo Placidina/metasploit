@@ -1,0 +1,63 @@
+# Maintainer: Alan Placidina Maria <alanplacidina[at]gmail[dot]com>
+
+pkgname=metasploit
+pkgver=5.0.81
+pkgrel=1
+pkgdesc='Advanced open-source platform for developing, testing, and using exploit code'
+url='https://www.metasploit.com/'
+arch=('x86_64')
+license=('BSD')
+depends=('ruby' 'libpcap' 'postgresql-libs' 'ruby-bundler' 'sqlite' 'libxslt' 'libxml2' 'inetutils' 'git')
+options=('!strip' '!emptydirs')
+source=(https://github.com/rapid7/metasploit-framework/archive/${pkgver}/${pkgname}-${pkgver}.tar.gz)
+sha256sums=('e0c589eeaf832b6dff2f83e697edd51ffb2ca2fbfc2800a7fcee9e87c6bd6ada')
+sha512sums=('ebdc2a699f1e6196918fc648fa5fbc2e98ad9dc3a2df80c758e4494424a67e6eb69b606ee4789f94b8cb3244158d3edf3e00e992cd692e45f66b182c20292a7a')
+b2sums=('cd7c9f55a09157a566a207ae556da2133427dae77aa4e54cc5546df2d2658d7a7a0f47953c7bc74e42d457005ba9bb0db5994aff890029c1c82b750b5dc124bf')
+
+prepare() {
+  cd ${pkgname}-framework-${pkgver}
+
+  # https://github.com/bundler/bundler/issues/6882
+  sed -e '/BUNDLED WITH/,+1d' -i Gemfile.lock
+
+  bundle config build.nokogiri --use-system-libraries
+  sed 's|git ls-files|find -type f|' -i metasploit-framework.gemspec
+}
+
+build() {
+  cd ${pkgname}-framework-${pkgver}
+  CFLAGS+=" -I/usr/include/libxml2"
+  bundle install -j"$(nproc)" --no-cache --deployment
+  find vendor/bundle/ruby -exec chmod o+r '{}' \;
+  find vendor/bundle/ruby \( -name gem_make.out -or -name mkmf.log \) -delete
+}
+
+package() {
+  cd ${pkgname}-framework-${pkgver}
+
+  install -d "${pkgdir}/opt/${pkgname}" "${pkgdir}/usr/bin"
+  cp -r . "${pkgdir}/opt/${pkgname}"
+
+  for f in "${pkgdir}"/opt/${pkgname}/msf*; do
+    local _msffile="${pkgdir}/usr/bin/`basename "${f}"`"
+    echo -e "#!/bin/sh\nBUNDLE_GEMFILE=/opt/${pkgname}/Gemfile bundle exec ruby /opt/${pkgname}/`basename "${f}"` \"\$@\"" > "${_msffile}"
+    chmod 755 "${_msffile}"
+  done
+
+  (cd "${pkgdir}/opt/${pkgname}"
+    for f in tools/*/*.rb; do
+      install -Dm 755 "${f}" ".${f}"
+      echo -e "#!/bin/sh\nBUNDLE_GEMFILE=/opt/${pkgname}/Gemfile bundle exec ruby -W0 /opt/${pkgname}/."${f}" \"\$@\"" > "${f}"
+      chmod 755 "${f}"
+    done
+  )
+
+  install -Dm 644 external/zsh/_* -t "${pkgdir}/usr/share/zsh/site-functions"
+  install -Dm 644 LICENSE COPYING -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -d "${pkgdir}/usr/share/doc"
+  mv "${pkgdir}/opt/${pkgname}/documentation" "${pkgdir}/usr/share/doc/${pkgname}"
+  rm "${pkgdir}/usr/bin/msfupdate"
+  rm -r "${pkgdir}"/opt/metasploit/vendor/bundle/ruby/*/cache
+}
+
+# vim: ts=2 sw=2 et:
