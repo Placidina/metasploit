@@ -22,6 +22,8 @@ prepare() {
 
   bundle config build.nokogiri --use-system-libraries
   sed 's|git ls-files|find -type f|' -i metasploit-framework.gemspec
+
+  sed -i '215i\\n  # https://github.com/Placidina/metasploit\n  spec.add_runtime_dependency "net-http2", "0.18.2"\n' metasploit-framework.gemspec
 }
 
 build() {
