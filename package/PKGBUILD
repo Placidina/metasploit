@@ -22,12 +22,15 @@ prepare() {
 
   bundle config build.nokogiri --use-system-libraries
   sed 's|git ls-files|find -type f|' -i metasploit-framework.gemspec
+
+  sed '7igem '"'net-http2'"', '"'0.18.2'"'' -i Gemfile
 }
 
 build() {
   cd ${pkgname}-framework-${pkgver}
   CFLAGS+=" -I/usr/include/libxml2"
-  bundle install -j"$(nproc)" --no-cache --deployment
+  # bundle install -j"$(nproc)" --no-cache --deployment
+  bundle install -j"$(nproc)" --no-cache --path vendor/bundle
   find vendor/bundle/ruby -exec chmod o+r '{}' \;
   find vendor/bundle/ruby \( -name gem_make.out -or -name mkmf.log \) -delete
 }
