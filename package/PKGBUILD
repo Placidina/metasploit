@@ -22,8 +22,6 @@ prepare() {
 
   bundle config build.nokogiri --use-system-libraries
   sed 's|git ls-files|find -type f|' -i metasploit-framework.gemspec
-
-  sed -i '215i\\n  # https://github.com/Placidina/metasploit\n  spec.add_runtime_dependency "net-http2", "0.18.2"\n' metasploit-framework.gemspec
 }
 
 build() {
@@ -42,7 +40,7 @@ package() {
 
   for f in "${pkgdir}"/opt/${pkgname}/msf*; do
     local _msffile="${pkgdir}/usr/bin/`basename "${f}"`"
-    echo -e "#!/bin/sh\nBUNDLE_GEMFILE=/opt/${pkgname}/Gemfile bundle exec ruby /opt/${pkgname}/`basename "${f}"` \"\$@\"" > "${_msffile}"
+    echo -e "#!/bin/sh\nBUNDLE_GEMFILE=/opt/${pkgname}/Gemfile bundle exec ruby -W0 /opt/${pkgname}/`basename "${f}"` \"\$@\"" > "${_msffile}"
     chmod 755 "${_msffile}"
   done
 
