@@ -24,7 +24,6 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('RLIMIT', [true, 'The number of requests to send', 1000]),
         OptInt.new('THREADS', [true, 'The number of concurrent threads', 1]),
-        OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 15]),
         Opt::RPORT(80)
       ]
     )
@@ -36,10 +35,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def thread_count
     datastore['THREADS']
-  end
-
-  def timeout
-    datastore['TIMEOUT']
   end
 
   def run
