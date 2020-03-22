@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
             sock.put("GET / HTTP/1.0\r\nCookie: =;\r\n\r\n")
             disconnect
           rescue StandardError => e
-            print_good("DoS packet error: #{e}")
+            print_error("DoS packet error: #{e}")
           ensure
             disconnect
           end
