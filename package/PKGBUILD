@@ -1,7 +1,7 @@
 # Maintainer: Alan Placidina Maria <alanplacidina[at]gmail[dot]com>
 
 pkgname=metasploit
-pkgver=5.0.81
+pkgver=6.0.15
 pkgrel=1
 pkgdesc='Advanced open-source platform for developing, testing, and using exploit code'
 url='https://www.metasploit.com/'
@@ -10,9 +10,8 @@ license=('BSD')
 depends=('ruby' 'libpcap' 'postgresql-libs' 'ruby-bundler' 'sqlite' 'libxslt' 'libxml2' 'inetutils' 'git')
 options=('!strip' '!emptydirs')
 source=(https://github.com/rapid7/metasploit-framework/archive/${pkgver}/${pkgname}-${pkgver}.tar.gz)
-sha256sums=('e0c589eeaf832b6dff2f83e697edd51ffb2ca2fbfc2800a7fcee9e87c6bd6ada')
-sha512sums=('ebdc2a699f1e6196918fc648fa5fbc2e98ad9dc3a2df80c758e4494424a67e6eb69b606ee4789f94b8cb3244158d3edf3e00e992cd692e45f66b182c20292a7a')
-b2sums=('cd7c9f55a09157a566a207ae556da2133427dae77aa4e54cc5546df2d2658d7a7a0f47953c7bc74e42d457005ba9bb0db5994aff890029c1c82b750b5dc124bf')
+sha512sums=('62dfa301d2acbeed5b84b41d31ef28e6d1d3ddf239d0f6b1bc88d1d656f8d634e3102598a5e460a0588aab4ae2555e87e8f83e5356e159b4c3dd1fde54e53771')
+b2sums=('a49c85801672dfaef0eada2710ea620e092f0f357a27e78b12a2c96973a4584647fc63c3eca6bf8e23904bfb4db21818b386e5373af394ffa2d05450926b0455')
 
 prepare() {
   cd ${pkgname}-framework-${pkgver}
