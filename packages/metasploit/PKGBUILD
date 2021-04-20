@@ -1,0 +1,93 @@
+# Maintainer: Alan Placidina Maria <alanplacidina[at]gmail[dot]com>
+
+pkgname=metasploit
+pkgver=6.0.37
+pkgrel=1
+pkgdesc='Advanced open-source platform for developing, testing, and using exploit code'
+url='https://www.metasploit.com/'
+arch=('x86_64')
+license=('BSD')
+depends=('ruby2.7' 'libpcap' 'postgresql-libs' 'sqlite' 'libxslt' 'libxml2' 'inetutils' 'git' 'docker')
+options=('!strip' '!emptydirs')
+source=("https://github.com/rapid7/metasploit-framework/archive/${pkgver}/${pkgname}-${pkgver}.tar.gz"
+        'metasploit.default'
+        'metasploit.service'
+        'database.yml')
+sha512sums=('1f4da0ae04e17c83885f4b7c886672942c452f645e5f1f30a9fb2a3e304ac5b787aa14b15224def5caef5c942813ae970188a2387de677e22c1222d37eb020e1'
+            'cb70a6a9f3d7f0e31ca1374b8d9c1ff1724c42183e4823137cb70212833ace9effcc1de0dc7a1fdc3659633ee94683338bbbc574558e0c49abd987a63c740d99'
+            '8a0cbf9706d0dff4e34210628180fce061307c0a3ef843dc9e3d1cf2dd669895e663ed61cc1c4d51810c57a1fb8ebfe8b2ea9d363a7564b832fc6c0e75006fcc'
+            '81844d3a03a792feb8cb8f55d1887daa192b474e4432d23237f428a70676dc9e5d73f1af47285d86117cf942ab5a54201d0e1eae071d46be53f12b00be1f0a0d')
+b2sums=('d33dfdb772d8c9ed270bffb639f4fcd75ade0ef9a2d471f1cdf3cbe1f4e3fefed8d4fa6b37e2fe07d8e452d1656741efa7af73dd973a75307fd617d7203fda75'
+        '19b25025221394ebd6dbd5c93c53f8ab7f58e8579643277244a5e73e628c858052b8b7c547d7f7ebc4764d4438d378122722613a971f4298777cb909eb17d488'
+        '00cc7a721425751a7d78d7ac5505c8d3f7deaee17c6355eb7cc26fe9b4154db5eaf56f3283b31c629df4e7f5e427814b7b0ebc99b917a48cac1cce1ff1c89c92'
+        'd5cc4819231d50d06892531cf3df71aae9da81109fdc49a25081cb4adad277c969bb28957bc1ed22448041959760447d590e6bcd9df043d9bd66a4c27c8baaed')
+
+prepare() {
+  cd ${pkgname}-framework-${pkgver}
+
+  # https://github.com/bundler/bundler/issues/6882
+  sed -e '/BUNDLED WITH/,+1d' -i Gemfile.lock
+
+  bundle-2.7 config build.nokogiri --use-system-libraries
+  sed 's|git ls-files|find -type f|' -i metasploit-framework.gemspec
+  sed '7igem '"'net-http2'"', '"'0.18.2'"'' -i Gemfile
+
+  cd "${srcdir}"
+
+  pgpwd=""
+  if [ ! -f "${srcdir}/pgpwd.txt" ]; then
+    pgpwd=$(openssl rand -base64 12)
+    echo -n "${pgpwd}" > "${srcdir}/pgpwd.txt"
+  else
+    pgpwd=$(cat "${srcdir}/pgpwd.txt")
+  fi
+
+  sed -e "s/s3cr3t/${pgpwd}/g" -i database.yml
+  sed -e "s/s3cr3t/${pgpwd}/g" -i metasploit.service
+
+  sed -E "s|^#\s(HOME=).*|\1$HOME|g" -i metasploit.default
+}
+
+build() {
+  cd ${pkgname}-framework-${pkgver}
+  CFLAGS+=" -I/usr/include/libxml2"
+  bundle-2.7 install -j"$(nproc)" --no-cache --path vendor/bundle
+  find vendor/bundle/ruby -exec chmod o+r '{}' \;
+  find vendor/bundle/ruby \( -name gem_make.out -or -name mkmf.log \) -delete
+}
+
+package() {
+  cd ${pkgname}-framework-${pkgver}
+
+  install -d "${pkgdir}/opt/${pkgname}" "${pkgdir}/usr/bin"
+  cp -r . "${pkgdir}/opt/${pkgname}"
+
+  for f in "${pkgdir}"/opt/${pkgname}/msf*; do
+    local _msffile="${pkgdir}/usr/bin/`basename "${f}"`"
+    echo -e "#!/bin/sh\nBUNDLE_GEMFILE=/opt/${pkgname}/Gemfile bundle-2.7 exec ruby-2.7 /opt/${pkgname}/`basename "${f}"` \"\$@\"" > "${_msffile}"
+    chmod 755 "${_msffile}"
+  done
+
+  (cd "${pkgdir}/opt/${pkgname}"
+    for f in tools/*/*.rb; do
+      install -Dm 755 "${f}" ".${f}"
+      echo -e "#!/bin/sh\nBUNDLE_GEMFILE=/opt/${pkgname}/Gemfile bundle-2.7 exec ruby-2.7 /opt/${pkgname}/."${f}" \"\$@\"" > "${f}"
+      chmod 755 "${f}"
+    done
+  )
+
+  install -Dm644 "${srcdir}/database.yml" "${pkgdir}/usr/share/metasploit/database.yml.sample"
+  install -Dm644 "${srcdir}/metasploit.service" "${pkgdir}/usr/lib/systemd/system/metasploit.service"
+  install -Dm644 "${srcdir}/metasploit.default" "${pkgdir}/etc/default/metasploit"
+
+  install -Dm 644 external/zsh/_* -t "${pkgdir}/usr/share/zsh/site-functions"
+  install -Dm 644 LICENSE COPYING -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -d "${pkgdir}/usr/share/doc"
+
+  mv "${pkgdir}/opt/${pkgname}/documentation" "${pkgdir}/usr/share/doc/${pkgname}"
+
+  rm "${pkgdir}/usr/bin/msfupdate"
+  rm -r "${pkgdir}"/opt/metasploit/vendor/bundle/ruby/*/cache
+}
+
+# vim: ts=2 sw=2 et:

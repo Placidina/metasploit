@@ -1,3 +1,4 @@
-package/pkg/
-package/src/
-package/*.tar*
+packages/**/pkg/
+packages/**/src/
+packages/**/*.tar*
+packages/**/*.tgz

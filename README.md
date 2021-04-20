@@ -16,13 +16,36 @@ Some modules need packages not installed in the metasploit:
 
 [How to add and update gems in metasploit framework](https://github.com/rapid7/metasploit-framework/wiki/How-to-add-and-update-gems-in-metasploit-framework)
 
-## Package
+## Packages
+
+### Metasploit
 
 Apply changings and install Metasploit Framework only [ArchLinux](https://www.archlinux.org/) distribution.
 
 ```sh
-cd package
+cd packages/metasploit
 makepkg -rsi
+```
+
+### Armitage
+
+Apply changings and install Armitage only [ArchLinux](https://www.archlinux.org/) distribution.
+
+```sh
+cd packages/armitager
+makepkg -rsi
+```
+
+> Note: Armitage requires Metasploit service running, and database configuration
+
+```sh
+cp /usr/share/metasploit/database.yml.sample $HOME/.msf4/database.yml
+
+msfconsole
+> db_status
+
+sudo systemctl start docker.service
+sudo systemctl start metasploit.service
 ```
 
 ## Vulnerabilities

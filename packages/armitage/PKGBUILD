@@ -1,0 +1,49 @@
+# Maintainer: GI_Jack <GI_Jack@hackermail.com>
+# pls note, this is a binary package.
+
+# please note systemd .service file is experimental. If anyone knows how to
+# improve, feel free to drop me a line
+
+pkgname=armitage
+pkgver=08.13.15
+pkgrel=4
+pkgdesc="Metasploit GUI Front ened written in java"
+url="http://www.fastandeasyhacking.com/"
+arch=('any')
+license=('GPL')
+depends=('metasploit' 'java-environment')
+conflicts=('armitage-svn')
+install='armitage.install'
+source=('http://www.fastandeasyhacking.com/download/armitage150813.tgz'
+        'armitage.install'
+        'armitage.desktop'
+        'armitage.png'
+        'metasploit.sh')
+sha256sums=('288065a8b779b6a4f4acaa0332f2ebbfd022529f600e4bf70cd494d84860f6ac'
+            '66060dc1078a47c9ad58a18b1ca6393d1d991ba2c6a4ddfe7c8d2065c2051eb7'
+            '5fbae6cca85a4f4d670c1b26efe549447685f4811a6c62228b42fa59a94df6f9'
+            '73c73ad6c803a574f9c8cf31f140dc758f5428cf55bc74f9d11c93a483975141'
+            '7869413529c5529b9a0f2bcaaa2be1480382c2f91eb505e43a4f9e1c1eab2d71')
+
+prepare() {
+  cd "${srcdir}"
+  sed -E "s|^(Exec=).*|\1env MSF_DATABASE_CONFIG=$HOME/.msf4/database.yml armitage|g" -i armitage.desktop
+}
+
+package() {
+  cd "${srcdir}/${pkgname}"
+
+  cat > armitage << EOF
+#!/bin/sh
+cd /opt/armitage
+java -XX:+AggressiveHeap -XX:+UseParallelGC -jar armitage.jar $@
+EOF
+
+  mkdir -p "${pkgdir}/opt/${pkgname}"
+  cp -ra "${srcdir}/${pkgname}/" "${pkgdir}/opt/"
+  install -Dm644 "${srcdir}/armitage.desktop" "${pkgdir}/usr/share/applications/armitage.desktop"
+  install -Dm644 "${srcdir}/armitage.png" "${pkgdir}/usr/share/icons/armitage.png"
+  install -Dm755 "${srcdir}/metasploit.sh" "${pkgdir}/etc/profile.d/metasploit.sh"
+}
+
+# vim:set ts=2 sw=2 et:

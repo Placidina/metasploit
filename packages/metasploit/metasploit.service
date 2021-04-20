@@ -1,0 +1,25 @@
+[Unit]
+Description=Metasploit Framework RPC Daemon
+Wants=docker.socket
+After=docker.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/metasploit
+ExecStart=/usr/bin/msfrpcd -f -a $IP_ADDR -U $RPC_USER -P $RPC_PASSWORD -S -p $PORT
+ExecStartPre=/usr/bin/docker run \
+    --restart=on-failure:5 \
+    -v msfdb:/var/lib/postgresql/data \
+    -e PGDATA=/var/lib/postgresql/data/pgdata \
+    -e POSTGRES_USER=msf \
+    -e POSTGRES_PASSWORD=s3cr3t \
+    -e POSTGRES_DB=msf \
+    -p 5432:5432 \
+    --name=msfdb \
+    -d \
+    postgres:13
+ExecStopPost=/usr/bin/docker rm -f msfdb
+PIDFile=/run/metasploit.pid
+
+[Install]
+WantedBy=multi-user.target
