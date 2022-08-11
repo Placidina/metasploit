@@ -12,15 +12,21 @@ options=('!strip' '!emptydirs')
 source=("https://github.com/rapid7/metasploit-framework/archive/${pkgver}/${pkgname}-${pkgver}.tar.gz"
         'metasploit.default'
         'metasploit.service'
-        'database.yml')
+        'database.yml'
+        'metasploit.png'
+        'metasploit.desktop')
 sha512sums=('bd70e3f65071541546a5b5a13594940259971e4cb421dc6a6e086712e3365cd887a86684dfc29b82d5e942f9320905132ea0f6eb29a3ec1d55e17d8096698166'
             'cb70a6a9f3d7f0e31ca1374b8d9c1ff1724c42183e4823137cb70212833ace9effcc1de0dc7a1fdc3659633ee94683338bbbc574558e0c49abd987a63c740d99'
-            '413bc209a947259b81a708684bcc6cfcd869005667719a4dd766092acbdb3e9c67fec706d2590d5629122fe1edd33a3062f2f353802fd86ce1a747f4333a65ae'
-            '142fb14ad668b1da5112980f2b8281b4808692af378178f74ba261a0f6ccc9d3d332a1eaba83aee8bbe5449aa426f45aff820594c9ac1b42b1571f7c2b956ccd')
+            '0e2c8a9fb644558d403b22395c75a81eb3d7dd1932076b643805aa3dbcf81651fcdae04600049b2db7867882e220fdaac86e77680faaf72d159996597ececdc2'
+            '81844d3a03a792feb8cb8f55d1887daa192b474e4432d23237f428a70676dc9e5d73f1af47285d86117cf942ab5a54201d0e1eae071d46be53f12b00be1f0a0d'
+            '8ae83df960cbc389c76dcafceff6fd2fa913b8c587c3746b65fe545f53a5a8a871a33ddc8b550b5c84f5fd0e576b6c1040c525bc9fe8990c7172012f520b3095'
+            '217cc70066958e06ec1fd9cf4893f4e599fc20d0b3a7f462fc7711e4e64f83bd68a23f327462fdc10aea0b6cd6c7abe25449f48ad319d341c26ce2cd62f1aa35')
 b2sums=('c654975099da7334f7f6a51ce799f581fc954774e13085da8b8e775b33f7d41e6729d26aa48b0631656240bfdede2bf7ad2218d2403a20de0a7c11a59223a657'
         '19b25025221394ebd6dbd5c93c53f8ab7f58e8579643277244a5e73e628c858052b8b7c547d7f7ebc4764d4438d378122722613a971f4298777cb909eb17d488'
-        '8661e43b79b27d2e874539db7f40df4b64f313eeb81fba2bf7566564a23a245280ff4e1f18a6ba1000f459563518d4803469ef4851f9c3d9b84fb9642f83fd5d'
-        '2cb543099b55658bc5a89a672e6b38f970a0939cffc5137c5873e45812459e0327ad0b221c168dc3fdefb89a89d7f7c93e8403c94f0dca7e47ced882950461c6')
+        '425eb1462541745526524d98e12adee37400e7b4669638022df608daa021ec91371224c6a3e50d8d07d25d356a6b01a71f1083ffc373833453f633ceaa98939b'
+        'd5cc4819231d50d06892531cf3df71aae9da81109fdc49a25081cb4adad277c969bb28957bc1ed22448041959760447d590e6bcd9df043d9bd66a4c27c8baaed'
+        'c07258880ded92c2eb17edd5c846ced08acaaf7a5b7a19e8b425fe827d5fc27e221a23be7feaaff75c9425c081dfd06f46487f3badac85ce0c143802868d6a23'
+        '24189a92b960e34fffb92f9df247e470289d10432e10498cacee442592738249acdd1a802e906ae61042eae502f328374d4b37f1c58c8b55598da62c9c08c737')
 
 prepare() {
   cd ${pkgname}-framework-${pkgver}
@@ -81,6 +87,8 @@ package() {
   install -Dm644 "${srcdir}/database.yml" "${pkgdir}/usr/share/metasploit/database.yml.sample"
   install -Dm644 "${srcdir}/metasploit.service" "${pkgdir}/usr/lib/systemd/system/metasploit.service"
   install -Dm644 "${srcdir}/metasploit.default" "${pkgdir}/etc/default/metasploit"
+  install -Dm644 "${srcdir}/metasploit.desktop" "${pkgdir}/usr/share/applications/metasploit.desktop"
+  install -Dm644 "${srcdir}/metasploit.png" "${pkgdir}/usr/share/icons/metasploit.png"
 
   install -Dm 644 external/zsh/_* -t "${pkgdir}/usr/share/zsh/site-functions"
   install -Dm 644 LICENSE COPYING -t "${pkgdir}/usr/share/licenses/${pkgname}"

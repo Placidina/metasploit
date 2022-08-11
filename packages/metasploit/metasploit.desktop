@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Metasploit
+GenericName=Metasploit Framework
+Comment=Advanced open-source platform for developing, testing, and using exploit code
+Icon=metasploit
+Exec=msfconsole
+Terminal=true
+Categories=Security
