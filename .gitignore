@@ -2,3 +2,5 @@ packages/**/pkg/
 packages/**/src/
 packages/**/*.tar*
 packages/**/*.tgz
+
+vendor/

