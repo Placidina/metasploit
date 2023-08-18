@@ -12,7 +12,7 @@ The custom Metasploit Framework modules.
 Some modules need packages not installed in the metasploit:
 
 * [zero_length_headers_leak](modules/auxiliary/dos/http/zero_length_headers_leak.rb)
-  * [net-http2](https://rubygems.org/gems/net-http2/versions/0.18.2)
+  * [net-http2](https://rubygems.org/gems/net-http2/versions/0.18.5)
 
 [How to add and update gems in metasploit framework](https://github.com/rapid7/metasploit-framework/wiki/How-to-add-and-update-gems-in-metasploit-framework)
 

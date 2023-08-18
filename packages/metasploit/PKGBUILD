@@ -1,7 +1,8 @@
 # Maintainer: Alan Placidina Maria <alanplacidina[at]gmail[dot]com>
 
 pkgname=metasploit
-pkgver=6.2.14
+pkgver=6.3.27
+_commit=53af96320f2fddfc0189ea66fd9db1f87d94eb06 # git rev-parse ${pkgver}
 pkgrel=1
 pkgdesc='Advanced open-source platform for developing, testing, and using exploit code'
 url='https://www.metasploit.com/'
@@ -15,13 +16,13 @@ source=("https://github.com/rapid7/metasploit-framework/archive/${pkgver}/${pkgn
         'database.yml'
         'metasploit.png'
         'metasploit.desktop')
-sha512sums=('3c7b0c45dbf08b94b685df4b72ba2cf693850f17ad18ab4ba94af9eeb3a905d2e5e801a43d208f1f361b9710d3421bbb891e3bdbcdc99f321c5983a20a7bf04d'
+sha512sums=('c1cc361611cb90ee856d50a913c579c805a684dfca566e96ca4bd167cb550f481b2c4bb3bae66756eb093f799e56105cb6b0ee18d06373ce3da4902dee3ff170'
             'cb70a6a9f3d7f0e31ca1374b8d9c1ff1724c42183e4823137cb70212833ace9effcc1de0dc7a1fdc3659633ee94683338bbbc574558e0c49abd987a63c740d99'
             '0e2c8a9fb644558d403b22395c75a81eb3d7dd1932076b643805aa3dbcf81651fcdae04600049b2db7867882e220fdaac86e77680faaf72d159996597ececdc2'
             '81844d3a03a792feb8cb8f55d1887daa192b474e4432d23237f428a70676dc9e5d73f1af47285d86117cf942ab5a54201d0e1eae071d46be53f12b00be1f0a0d'
             '8ae83df960cbc389c76dcafceff6fd2fa913b8c587c3746b65fe545f53a5a8a871a33ddc8b550b5c84f5fd0e576b6c1040c525bc9fe8990c7172012f520b3095'
             '217cc70066958e06ec1fd9cf4893f4e599fc20d0b3a7f462fc7711e4e64f83bd68a23f327462fdc10aea0b6cd6c7abe25449f48ad319d341c26ce2cd62f1aa35')
-b2sums=('6cd3e5a70eaf84ef0365f8562ef336695451f81f863f9fa69b3cf7ecf066fa4c087819aa6684555aedc3623bba6ad6ba96231176d90ec681efabf706cd502ac0'
+b2sums=('e7bb5a97baf5bf7185536c5cd7a15824bd156bc87bbb7deb181f338c2705b0c971d9aeb8aff79e36dc53b91abfa3aada31ca4d7b41085bf2d7e599ef3a5d19bd'
         '19b25025221394ebd6dbd5c93c53f8ab7f58e8579643277244a5e73e628c858052b8b7c547d7f7ebc4764d4438d378122722613a971f4298777cb909eb17d488'
         '425eb1462541745526524d98e12adee37400e7b4669638022df608daa021ec91371224c6a3e50d8d07d25d356a6b01a71f1083ffc373833453f633ceaa98939b'
         'd5cc4819231d50d06892531cf3df71aae9da81109fdc49a25081cb4adad277c969bb28957bc1ed22448041959760447d590e6bcd9df043d9bd66a4c27c8baaed'
@@ -38,7 +39,7 @@ prepare() {
   bundle config set --local path 'vendor/bundle'
 
   sed 's|git ls-files|find -type f|' -i metasploit-framework.gemspec
-  sed '147i\\tspec.add_runtime_dependency '"'net-http2'"', '"'0.18.4'"'' -i metasploit-framework.gemspec
+  sed '147i\\tspec.add_runtime_dependency '"'net-http2'"', '"'0.18.5'"'' -i metasploit-framework.gemspec
 
   cd "${srcdir}"
 
