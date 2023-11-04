@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  workspace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: vscode
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    labels:
+      - com.github/placidina=metasploit
+    privileged: true
+    network_mode: host
+    volumes:
+      - volume-metasploit-vscode:/home/vscode
+      - volume-metasploit-vscode-bashhistory:/commandhistory
+      - ~/.ssh:/tmp/.ssh-localhost:ro
+      - ..:/src/workspace
+    environment:
+      - HISTFILE=/commandhistory/.bash_history
+      - HISTSIZE=1000
+
+volumes:
+  volume-metasploit-vscode:
+    labels:
+      - com.github/placidina=metasploit
+  volume-metasploit-vscode-bashhistory:
+    labels:
+      - com.github/placidina=metasploit

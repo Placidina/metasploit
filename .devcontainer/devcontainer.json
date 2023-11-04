@@ -1,0 +1,27 @@
+{
+	"name": "Metasploit",
+	"dockerComposeFile": "docker-compose.yaml",
+	"service": "workspace",
+	"workspaceFolder": "/src/workspace",
+	"remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.eol": "\n",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.scrollback": 64000
+      },
+      "extensions": [
+        "mutantdino.resourcemonitor",
+        "EditorConfig.EditorConfig",
+        "davidanson.vscode-markdownlint",
+        "wayou.vscode-todo-highlight",
+        "eamodio.gitlens",
+        "donjayamanne.githistory",
+        "Shopify.ruby-extensions-pack"
+      ]
+    }
+  },
+	"postCreateCommand": "/bin/bash ./.devcontainer/scripts/postCreateCommand.sh",
+	"postStartCommand": "/bin/bash ./.devcontainer/scripts/postStartCommand.sh"
+}
